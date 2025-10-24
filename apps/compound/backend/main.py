@@ -20,7 +20,7 @@ class SimRequest(BaseModel):
     annual_contribution: float = Field(6000, ge=0, description="First-year total contribution")
     contribution_growth: float = Field(0.03, ge=0, description="Annual growth rate for contributions (e.g., 0.03 = 3%)")
     years: int = Field(30, ge=1, le=80)
-    n_sims: int = Field(2000, ge=100, le=20000)
+    n_sims: int = Field(100, ge=50, le=20000)
     expected_return: float = Field(0.07, description="Expected nominal annual return (mu)")
     volatility: float = Field(0.18, description="Annualized volatility (sigma)")
     expense_ratio: float = Field(0.0, ge=0, description="Annual fund expense drag, e.g., 0.001 = 0.10%")
@@ -56,42 +56,59 @@ def simulate_paths(req: SimRequest):
     inflation_factor = (1 + req.inflation) ** (np.arange(0, T+1) * dt)
     wealth_real = wealth / inflation_factor
 
-    # Aggregate stats
+    # --- Percentiles (sanitize to avoid NaN/inf) ---
+    def tolist_safe(arr):
+        return np.nan_to_num(arr, nan=0.0, posinf=0.0, neginf=0.0).tolist()
+
     percentiles = {
-        "p10": np.percentile(wealth, 10, axis=0).tolist(),
-        "p25": np.percentile(wealth, 25, axis=0).tolist(),
-        "p50": np.percentile(wealth, 50, axis=0).tolist(),
-        "p75": np.percentile(wealth, 75, axis=0).tolist(),
-        "p90": np.percentile(wealth, 90, axis=0).tolist(),
-        "p50_real": np.percentile(wealth_real, 50, axis=0).tolist()
+        "p10": tolist_safe(np.percentile(wealth, 10, axis=0)),
+        "p25": tolist_safe(np.percentile(wealth, 25, axis=0)),
+        "p50": tolist_safe(np.percentile(wealth, 50, axis=0)),
+        "p75": tolist_safe(np.percentile(wealth, 75, axis=0)),
+        "p90": tolist_safe(np.percentile(wealth, 90, axis=0)),
+        "p50_real": tolist_safe(np.percentile(wealth_real, 50, axis=0)),
     }
     final = wealth[:, -1]
     summary = {
-        "expected_final": float(np.mean(final)),
-        "median_final": float(np.median(final)),
-        "p10_final": float(np.percentile(final, 10)),
-        "p90_final": float(np.percentile(final, 90)),
+        "expected_final": float(np.nan_to_num(np.mean(final))),
+        "median_final": float(np.nan_to_num(np.median(final))),
+        "p10_final": float(np.nan_to_num(np.percentile(final, 10))),
+        "p90_final": float(np.nan_to_num(np.percentile(final, 90))),
     }
-
     if req.target is not None:
         summary["prob_hit_target"] = float(np.mean(final >= req.target))
 
-    # Max drawdown (median path)
-    median_path = np.array(percentiles["p50"])
+    # --- Max drawdown on the median path (skip t=0 and avoid /0) ---
+    median_path = np.array(percentiles["p50"], dtype=float)
     running_max = np.maximum.accumulate(median_path)
-    drawdowns = (median_path - running_max) / running_max
-    max_dd = float(np.min(drawdowns))
+    safe_den = running_max.copy()
+    safe_den[safe_den <= 0] = 1.0  # prevent divide-by-zero
+    drawdowns = (median_path - running_max) / safe_den
+    if drawdowns.shape[0] > 1:
+        max_dd = float(np.nanmin(drawdowns[1:]))  # skip first point
+    else:
+        max_dd = 0.0
 
-    # CAGR on median path (nominal)
-    years_total = req.years
-    cagr = (median_path[-1] / max(median_path[0], 1e-9)) ** (1/years_total) - 1 if median_path[-1] > 0 else 0.0
+    # --- CAGR (handle zero or flat starts) ---
+    if median_path[-1] > 0:
+        # find first positive point to avoid 0 baseline
+        pos_idx = np.argmax(median_path > 0)
+        if median_path[pos_idx] > 0:
+            years_elapsed = (len(median_path) - 1 - pos_idx) / req.frequency
+            cagr = (median_path[-1] / median_path[pos_idx]) ** (1 / max(years_elapsed, 1e-9)) - 1
+        else:
+            cagr = 0.0
+    else:
+        cagr = 0.0
 
     insights = {
-        "median_cagr": cagr,
-        "median_max_drawdown": max_dd,
+        "median_cagr": float(np.nan_to_num(cagr)),
+        "median_max_drawdown": float(np.nan_to_num(max_dd)),
         "total_contrib": float(np.sum(contrib_schedule)),
-        "real_median_final": float(np.array(percentiles["p50_real"])[-1])
+        "real_median_final": float(np.array(percentiles["p50_real"])[-1]),
     }
+
+
 
     # Suggested knobs (simple heuristics)
     suggestions = []

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FIRE Planner</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+  <div class="container">
+    <p class="back"><a href="../../landing.html">← Back to Apps</a></p>
+    <h1>FIRE Planner</h1>
+    <p class="tag">Project your path to financial independence, then see how long your portfolio lasts in retirement.</p>
+
+    <form id="fire-form">
+      <div class="grid">
+        <label>Initial balance
+          <input type="number" id="initial" value="0" step="100" />
+        </label>
+        <label>Monthly disposable (invest)
+          <input type="number" id="monthly_disposable" value="600" step="50" />
+        </label>
+        <label>Monthly drawdown (retire)
+          <input type="number" id="monthly_drawdown" value="2500" step="50" />
+        </label>
+        <label>Years to retire
+          <input type="number" id="years_to_retire" value="20" min="1" max="60" />
+        </label>
+        <label>Retirement years
+          <input type="number" id="years_in_retirement" value="30" min="1" max="60" />
+        </label>
+        <label>Expected return (accum) %
+          <input type="number" id="er_accum" value="7" step="0.5" />
+        </label>
+        <label>Expected return (retire) %
+          <input type="number" id="er_ret" value="5" step="0.5" />
+        </label>
+        <label>Volatility %
+          <input type="number" id="vol" value="18" step="1" />
+        </label>
+        <label>Inflation %
+          <input type="number" id="infl" value="2" step="0.5" />
+        </label>
+        <label>Expense ratio %
+          <input type="number" id="eratio" value="0.1" step="0.05" />
+        </label>
+        <label>Sims
+          <input type="number" id="sims" value="2000" min="100" max="10000" />
+        </label>
+      </div>
+      <button type="submit">Run FIRE</button>
+    </form>
+
+    <div class="plot-box">
+      <canvas id="chart"></canvas>
+    </div>
+
+    <div id="stats" class="plot-box"></div>
+
+    <div class="plot-box legend">
+      <h3 class="m0">Legend</h3>
+      <dl>
+        <dt>Monthly disposable</dt><dd>Amount invested each month during accumulation. Increases annually with inflation.</dd>
+        <dt>Monthly drawdown</dt><dd>Amount withdrawn/spent each month during retirement. Increases annually with inflation.</dd>
+        <dt>P10 / P50 / P90</dt><dd>Uncertainty bands across simulated paths (GBM with volatility).</dd>
+        <dt>Retirement marker</dt><dd>Vertical line where accumulation ends and drawdown begins.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

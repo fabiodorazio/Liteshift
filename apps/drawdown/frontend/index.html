@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Drawdown Explorer</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+  <div class="container">
+    <p class="back"><a href="../../landing.html">← Back to Apps</a></p>
+    <h1>Drawdown Explorer</h1>
+    <p class="tag">Simulate market paths and visualize peak-to-trough drawdowns over time.</p>
+
+    <form id="dd-form">
+      <div class="grid">
+        <label>Years <input type="number" id="years" value="30" min="1" max="80" /></label>
+        <label>Expected return % <input type="number" id="er" value="7" step="0.5" /></label>
+        <label>Volatility % <input type="number" id="vol" value="18" step="1" /></label>
+        <label>Expense ratio % <input type="number" id="eratio" value="0.1" step="0.05" /></label>
+        <label>Sims <input type="number" id="sims" value="2000" min="100" max="10000" /></label>
+      </div>
+      <button type="submit">Run drawdown</button>
+    </form>
+
+    <div class="plot-box">
+      <canvas id="chartDD" height="100"></canvas>
+    </div>
+
+    <div id="stats" class="plot-box"></div>
+
+    <div class="plot-box legend">
+      <h3 class="m0">Legend</h3>
+      <dl>
+        <dt>Drawdown</dt><dd>Peak-to-trough % drop from the most recent high. Negative values, e.g., −25%.</dd>
+        <dt>P10/P50/P90</dt><dd>Percentiles across simulations at each point in time.</dd>
+        <dt>Median max drawdown</dt><dd>Typical worst drop experienced over the whole horizon.</dd>
+        <dt>Median recovery</dt><dd>Months from the median path’s trough to regain the prior peak.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

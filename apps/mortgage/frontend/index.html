@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mortgage Repayment</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+  <div class="container">
+    <p class="back"><a href="../../landing.html">← Back to Apps</a></p>
+    <h1>Mortgage Repayment</h1>
+    <p class="tag">Fixed intro period, variable later, with monthly overpayments & optional lump sums.</p>
+
+    <form id="mort-form">
+      <div class="grid">
+        <label>Principal
+          <input type="number" id="principal" value="350000" step="1000" />
+        </label>
+        <label>Term (years)
+          <input type="number" id="term_years" value="25" min="1" max="50" />
+        </label>
+        <label>Fixed years
+          <input type="number" id="fixed_years" value="5" min="0" max="15" />
+        </label>
+        <label>Fixed rate %
+          <input type="number" id="fixed_rate" value="4.0" step="0.05" />
+        </label>
+        <label>Variable rate %
+          <input type="number" id="variable_rate" value="5.5" step="0.05" />
+        </label>
+        <label>Monthly overpayment
+          <input type="number" id="overpay" value="0" step="50" />
+        </label>
+        <label>Extra payment (YYYY-MM)
+          <input type="month" id="extra_month" />
+        </label>
+        <label>Extra amount
+          <input type="number" id="extra_amount" value="0" step="100" />
+        </label>
+        <label>Recalc on rate change?
+          <select id="recalc">
+            <option value="true" selected>Yes</option>
+            <option value="false">No</option>
+          </select>
+        </label>
+      </div>
+      <button type="submit">Calculate</button>
+    </form>
+
+    <div class="plot-box">
+      <canvas id="chart"></canvas>
+    </div>
+
+    <div id="stats" class="plot-box"></div>
+
+    <div class="plot-box legend">
+      <h3 class="m0">Legend</h3>
+      <dl>
+        <dt>Balance</dt><dd>Outstanding principal over time with your overpayments.</dd>
+        <dt>Baseline</dt><dd>Balance with no overpayments (same rates/term).</dd>
+        <dt>Recalculate</dt><dd>Whether the scheduled payment is recomputed when the rate changes.</dd>
+      </dl>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

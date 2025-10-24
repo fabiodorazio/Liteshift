@@ -1,9 +1,15 @@
 const API = "http://localhost:8000";
 
-const fmt = (n) => n.toLocaleString(undefined, {maximumFractionDigits: 0});
+// --- 1-decimal formatting helpers ---
+const fmt1 = (n) => Number(n).toLocaleString(undefined, {
+  minimumFractionDigits: 1, maximumFractionDigits: 1
+});
+const fmt1pct = (x) => `${(x * 100).toFixed(1)}%`;
+const fmt1usd = (n) => `$${fmt1(n)}`;
+
 let chart;
 
-// --- Safer halo plugin (manual path) ---
+// --- Plugins: halo + left-to-right reveal (safe versions) ---
 const haloPlugin = {
   id: "halo",
   afterDatasetsDraw(chart, args, pluginOptions) {
@@ -16,7 +22,6 @@ const haloPlugin = {
       const meta = chart.getDatasetMeta(i);
       if (!meta || meta.hidden || !meta.data || meta.data.length === 0) return;
 
-      // Build path from data points
       ctx.save();
       ctx.beginPath();
       const pts = meta.data;
@@ -26,11 +31,9 @@ const haloPlugin = {
         if (k === 0) ctx.moveTo(p.x, p.y);
         else ctx.lineTo(p.x, p.y);
       }
-      // Halo styling
       ctx.lineWidth = (ds.borderWidth || 2) + extra;
       ctx.shadowBlur = blur;
       ctx.globalAlpha = alpha;
-      // use dataset borderColor if any, else fallback
       ctx.strokeStyle = (typeof ds.borderColor === "string" && ds.borderColor) ? ds.borderColor : "#ffffff";
       ctx.shadowColor = ctx.strokeStyle;
       ctx.stroke();
@@ -39,12 +42,11 @@ const haloPlugin = {
   }
 };
 
-// --- Safer reveal plugin with guards ---
 const revealPlugin = {
   id: "reveal",
   beforeDatasetsDraw(chart) {
     const area = chart?.chartArea;
-    if (!area) return; // guard: sometimes undefined before layout
+    if (!area) return;
     const progress = chart.$revealProgress ?? 1;
     const { ctx } = chart;
     ctx.save();
@@ -85,8 +87,18 @@ document.getElementById("sim-form").addEventListener("submit", async (e) => {
   renderStats(data);
 });
 
+// helper: add months to a Date
+function addMonths(date, months) {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + months);
+  return d;
+}
+
 function renderChart(data) {
-  const t = data.times.map(m => m/12);
+  // Use real Date labels starting today, 1 label per month
+  const start = new Date(); // change to new Date("2025-01-01") if you want a fixed start
+  const labels = data.times.map(m => addMonths(start, m));
+
   const p10 = data.percentiles.p10;
   const p50 = data.percentiles.p50;
   const p90 = data.percentiles.p90;
@@ -98,7 +110,7 @@ function renderChart(data) {
   chart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: t,
+      labels,
       datasets: [
         {label:"P10", data: p10, borderWidth:1, tension:0.2, pointRadius:0, pointHoverRadius:0, fill:false},
         {label:"Median (nominal)", data: p50, borderWidth:2, tension:0.2, pointRadius:0, pointHoverRadius:0, fill:false},
@@ -108,33 +120,46 @@ function renderChart(data) {
     },
     options: {
       responsive: true,
-      animation: false, // custom animation below
+      animation: false, // custom reveal below
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { position: "bottom" },
-        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: $${fmt(ctx.parsed.y)}` } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${fmt1usd(ctx.parsed.y)}`
+          }
+        },
         halo: { blur: 10, extraWidth: 2, alpha: 0.35 }
       },
       scales: {
-        x: { title: { display:true, text:"Years" } },
-        y: { title: { display:true, text:"Portfolio value ($)" }, ticks: { callback: (v)=>"$"+fmt(v) } }
+        x: {
+          type: "time",
+          time: {
+            unit: "year"    // use "month" for denser ticks
+          },
+          title: { display:true, text:"Date" }
+        },
+        y: {
+          title: { display:true, text:"Portfolio value ($)" },
+          ticks: {
+            callback: (v) => fmt1usd(v)
+          }
+        }
       }
     },
     plugins: [haloPlugin, revealPlugin]
   });
 
-  // Left-to-right reveal animation (guarded)
-  const area = chart?.chartArea;
+  // Left-to-right reveal animation (1.2s)
   chart.$revealProgress = 0;
-  const duration = 1200; // ms
-  const start = performance.now();
+  const duration = 1200;
+  const startTs = performance.now();
   function step(ts) {
-    const elapsed = ts - start;
+    const elapsed = ts - startTs;
     chart.$revealProgress = Math.min(1, elapsed / duration);
     chart.draw();
     if (chart.$revealProgress < 1) requestAnimationFrame(step);
   }
-  // Wait one frame to ensure layout & chartArea exist
   requestAnimationFrame(() => requestAnimationFrame(step));
 }
 
@@ -145,13 +170,13 @@ function renderStats(data) {
   const html = `
     <h3>Summary</h3>
     <ul>
-      <li>Expected final (mean): $${fmt(s.expected_final)}</li>
-      <li>Median final: $${fmt(s.median_final)} (real: $${fmt(i.real_median_final)})</li>
-      <li>P10 / P90: $${fmt(s.p10_final)} / $${fmt(s.p90_final)}</li>
+      <li>Expected final (mean): ${fmt1usd(s.expected_final)}</li>
+      <li>Median final: ${fmt1usd(s.median_final)} (real: ${fmt1usd(i.real_median_final)})</li>
+      <li>P10 / P90: ${fmt1usd(s.p10_final)} / ${fmt1usd(s.p90_final)}</li>
       ${s.prob_hit_target !== undefined ? `<li>Probability to hit target: ${(s.prob_hit_target*100).toFixed(1)}%</li>` : ""}
-      <li>Total contributions: $${fmt(i.total_contrib)}</li>
-      <li>Median CAGR: ${(i.median_cagr*100).toFixed(2)}%</li>
-      <li>Median max drawdown: ${(i.median_max_drawdown*100).toFixed(1)}%</li>
+      <li>Total contributions: ${fmt1usd(i.total_contrib)}</li>
+      <li>Median CAGR: ${fmt1pct(i.median_cagr)}</li>
+      <li>Median max drawdown: ${fmt1pct(i.median_max_drawdown)}</li>
     </ul>
     ${sugg.length ? `<h3>Suggestions</h3><ul>` + sugg.map(x=>`<li>${x}</li>`).join("") + `</ul>` : ""}
   `;

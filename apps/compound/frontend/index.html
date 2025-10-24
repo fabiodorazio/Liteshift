@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Better Compound Interest</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+</head>
+<body>
+  <div class="container">
+    <h1>Better Compound Interest</h1>
+    <p class="tag">There is a lot of misconception about compound interest growth fueled by over-simplistic online calculators.
+    This compound interest calculator helps with realistic assumptions</p>
+    
+    <details class="legend mt16">
+      <summary>Legend / what each option means</summary>
+      <dl>
+        <dt>Initial balance</dt><dd>Your starting portfolio today.</dd>
+        <dt>Year 1 contribution</dt><dd>Total added in year one (split monthly).</dd>
+        <dt>Contribution growth %</dt><dd>Annual increase in contributions.</dd>
+        <dt>Years</dt><dd>Simulation horizon with monthly steps.</dd>
+        <dt>Expected return %</dt><dd>Average annual return (nominal).</dd>
+        <dt>Volatility %</dt><dd>Annualized standard deviation of returns.</dd>
+        <dt>Expense ratio %</dt><dd>Fund fee; subtracted from expected return.</dd>
+        <dt>Inflation %</dt><dd>Used for the real (inflation-adjusted) line.</dd>
+        <dt>Target</dt><dd>Goal value to measure hit probability.</dd>
+        <dt>Sims</dt><dd>Number of Monte Carlo paths.</dd>
+      </dl>
+    </details>
+
+    <form id="sim-form">
+      <div class="grid">
+        <label>Initial balance <input type="number" id="initial" value="0" step="100"></label>
+        <label>Year 1 contribution <input type="number" id="annual_contribution" value="6000" step="500"></label>
+        <label>Contribution growth % <input type="number" id="contribution_growth" value="3" step="0.5"></label>
+        <label>Years <input type="number" id="years" value="30" min="1" max="80"></label>
+        <label>Expected return % <input type="number" id="expected_return" value="7" step="0.5"></label>
+        <label>Volatility % <input type="number" id="volatility" value="18" step="1"></label>
+        <label>Expense ratio % <input type="number" id="expense_ratio" value="0.1" step="0.05"></label>
+        <label>Inflation % <input type="number" id="inflation" value="2" step="0.5"></label>
+        <label>Target (optional) <input type="number" id="target" value="400000" step="1000"></label>
+        <label>Sims <input type="number" id="n_sims" value="2000" min="100" max="10000"></label>
+      </div>
+      <button type="submit">Run simulation</button>
+    </form>
+    
+    <h3 class="m0">Growth</h3>
+
+    <canvas id="chart" height="100"></canvas>
+
+    <div id="stats"></div>
+    
+  
+  <!-- Comparison controls + chart -->
+  <div class="plot-box" style="margin-top:20px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
+      <h3 class="m0">Comparison</h3>
+
+      <p class="tag">Comparing medians - pre-inflation</p>
+
+      <button id="clear-compare" type="button">Clear comparisons</button>
+    </div>
+    <canvas id="chartCompare" height="100"></canvas>
+    <p class="tag" style="margin-top:8px;">Each run adds its median line here so you can compare scenarios.</p>
+  </div>
+
+  </div>
+
+  <script src="app.js"></script>
+  
+
+
+    
+</body>
+</html>

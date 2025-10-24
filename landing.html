@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Money Tools – Apps</title>
+  <link rel="stylesheet" href="landing.css" />
+  <link rel="icon" href="favicon.ico" />
+  <meta name="description" content="Explore personal finance tools: compound interest simulator, FIRE planner, debt payoff and more." />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <h1>Money Tools</h1>
+      <p class="tag">Pick an app to start your financial planning.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Grid of app cards -->
+    <section class="apps-grid">
+      <!-- Example app card -->
+      <a class="app-card" href="./apps/compound/frontend/index.html" aria-label="Open Better Compound Interest app">
+        <figure>
+          <img src="img/compound-cover.jpg" alt="Compound Interest Simulator preview" loading="lazy" />
+          <figcaption>
+            <h3>Compound Interest</h3>
+            <p>Monte Carlo, rising contributions, realistic bumps.</p>
+          </figcaption>
+          <span class="pill pill-soon">Live</span>
+        </figure>
+      </a>
+
+      <!-- Add more apps by duplicating this block -->
+      <a class="app-card" href="./apps/fire/frontend/index.html" aria-label="Open FIRE Planner app">
+        <figure>
+          <img src="img/fire-cover.png" alt="FIRE Planner preview" loading="lazy" />
+          <figcaption>
+            <h3>FIRE Planner</h3>
+            <p>Time-to-FI, safe withdrawals, glidepaths.</p>
+          </figcaption>
+          <span class="pill pill-soon">Live</span>
+        </figure>
+      </a>
+
+      <a class="app-card" href="/mortgage/index.html" aria-label="Open Debt Payoff app">
+        <figure>
+          <img src="img/debt-cover.png" alt="Debt payoff calculator preview" loading="lazy" />
+          <figcaption>
+            <h3>Mortgage Payoff</h3>
+            <p>Years to mortgage Free, overpayment calculator</p>
+          </figcaption>
+          <span class="pill pill-soon">Live</span>
+        </figure>
+      </a>
+
+      <a class="app-card" href="./apps/drawdown/frontend/index.html" aria-label="Open Safe Withdrawal app">
+        <figure>
+          <img src="img/swr-cover.jpg" alt="Safe withdrawal rate explorer preview" loading="lazy" />
+          <figcaption>
+            <h3>Safe Withdrawal</h3>
+            <p>Sequence risk, guardrails, success rates.</p>
+          </figcaption>
+          <span class="pill">Soon</span>
+        </figure>
+      </a>
+    </section>
+  </main>
+
+  <footer class="wrap site-footer">
+    <p>© <span id="year"></span> Money Tools • <a href="/about.html">About</a></p>
+  </footer>
+
+  <script>
+    // tiny enhancement: current year + basic click tracking hook
+    document.getElementById('year').textContent = new Date().getFullYear();
+    document.querySelectorAll('.app-card').forEach(a => {
+      a.addEventListener('click', () => {
+        // Hook for analytics (replace with your tracker)
+        // console.log('open_app', { href: a.href, title: a.querySelector('h3')?.textContent });
+      });
+    });
+  </script>
+</body>
+</html>

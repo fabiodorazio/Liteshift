@@ -78,3 +78,9 @@ outputs/
 *.zip
 *.tar.gz
 *.rar
+
+# Python virtual environments
+.venv/
+venv/
+__pycache__/
+*.pyc
