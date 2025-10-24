@@ -1,0 +1,80 @@
+# =========================
+# Core ignore rules
+# =========================
+
+# System files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+env/
+venv/
+ENV/
+*.log
+
+# Node.js / JavaScript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.pnpm-debug.log*
+
+# =========================
+# IDE / Editor configs
+# =========================
+
+# VS Code
+.vscode/
+.history/
+*.code-workspace
+
+# JetBrains IDEs (PyCharm, WebStorm, etc.)
+.idea/
+*.iml
+
+# =========================
+# Codex / Codespaces / Cloud IDEs
+# =========================
+
+.codex/
+.cache/
+.devcontainer/
+.replit/
+.coder/
+*.swp
+*.tmp
+*.bak
+
+# =========================
+# OS / Backup files
+# =========================
+
+*.bak
+*.tmp
+*.old
+*.orig
+*~
+
+# =========================
+# Optional large folders
+# =========================
+
+# If you have datasets, models, or binaries, ignore them too:
+data/
+models/
+uploads/
+outputs/
+*.zip
+*.tar.gz
+*.rar

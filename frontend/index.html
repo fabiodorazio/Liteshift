@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Better Compound Interest</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Better Compound Interest</h1>
+    <p class="tag">Monte Carlo, rising contributions, realistic bumps.</p>
+
+    <form id="sim-form">
+      <div class="grid">
+        <label>Initial balance <input type="number" id="initial" value="0" step="100"></label>
+        <label>Year 1 contribution <input type="number" id="annual_contribution" value="6000" step="500"></label>
+        <label>Contribution growth % <input type="number" id="contribution_growth" value="3" step="0.5"></label>
+        <label>Years <input type="number" id="years" value="30" min="1" max="80"></label>
+        <label>Expected return % <input type="number" id="expected_return" value="7" step="0.5"></label>
+        <label>Volatility % <input type="number" id="volatility" value="18" step="1"></label>
+        <label>Expense ratio % <input type="number" id="expense_ratio" value="0.1" step="0.05"></label>
+        <label>Inflation % <input type="number" id="inflation" value="2" step="0.5"></label>
+        <label>Target (optional) <input type="number" id="target" value="400000" step="1000"></label>
+        <label>Sims <input type="number" id="n_sims" value="2000" min="100" max="10000"></label>
+      </div>
+      <button type="submit">Run simulation</button>
+    </form>
+
+    <canvas id="chart" height="100"></canvas>
+
+    <div id="stats"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
